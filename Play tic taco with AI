@@ -1,0 +1,125 @@
+X = 'X'
+O = 'O'
+EMPTY = ''
+
+#生成新棋盘
+def new_board():
+    board = []
+    for i in range(9):
+        board.append(EMPTY)
+    return board
+
+#展示棋盘
+def display_board(board):
+    board2 = board[:]
+    for i in range(len(board)):
+        if board[i] == EMPTY:
+            board2[i] = i
+    print('\t',board2[0],'|',board2[1],'|',board2[2])
+    print('\t',"---------")
+    print('\t',board2[3],'|',board2[4],'|',board2[5])
+    print('\t',"---------")
+    print('\t',board2[6],'|',board2[7],'|',board2[8],'\n')
+
+#判断输赢
+def winner(board):
+    WAYS_TO_WIN = ((0, 1, 2), (3, 4, 5), (6, 7, 8), (0, 3, 6), (1, 4, 7), (2, 5, 8), (0, 4, 8), (2, 4, 6))
+
+    for row in WAYS_TO_WIN:
+        if board[row[0]] == board[row[1]] == board[row[2]] != EMPTY:
+            winner = board[row[0]]
+            return winner
+
+    if EMPTY not in board:
+        return 'TIE'
+    return False
+
+#合法走棋
+def legal_moves(board):
+    moves = []
+    for square in range(9):
+        if board[square] == EMPTY:
+            moves.append(square)
+    return moves
+
+#机器走棋
+def computer_move(board,computer,human):
+    board = board[:]
+
+    BEST_CHOICE = [4,0,2,6,8,1,3,5,7]
+
+    for move in legal_moves(board):
+        board[move] = computer
+        if winner(board) == computer:
+            print('电脑下棋位置……',move)
+            return move
+        board[move] = EMPTY#赢不了的话就不这么走
+
+    for move in legal_moves(board):
+        board[move] = human
+        if winner(board) == human:
+            print('电脑下棋位置……',move)
+            return move
+        board[move] = EMPTY#赢不了的话就不这么走
+
+    for move in BEST_CHOICE:
+        if board[move] != 'X' or 'O' and move in legal_moves(board):
+            print('电脑下棋位置……',move)
+            return move
+
+#玩家走棋
+def human_move(board,human):
+    legal = legal_moves(board)
+    move = None
+    while move not in legal:
+        move = eval(input('你想走哪？'))
+        if move not in legal:
+            print('走过了')
+    return move
+
+#问谁先走
+def pieces():
+    go_first = input('是否先走 y/n')
+    if go_first == 'y':
+        print('你先')
+        human = X
+        computer = O
+    else:
+        print('你后')
+        computer = X
+        human = O
+    return computer,human
+
+
+def main():
+    computer,human = pieces()
+    turn = X
+    board = new_board()
+    display_board(board)
+
+    while not winner(board):
+        if turn == human:
+            move = human_move(board,human)
+            board[move] = human
+        else:
+            move = computer_move(board,computer,human)
+            board[move] = computer
+
+        display_board(board)
+        turn = next_turn(turn)
+        the_winner = winner(board)
+
+        if the_winner == computer:
+            print('菜逼，电脑都干不过')
+        elif the_winner == human:
+            print('运气不错，居然能赢')
+        elif the_winner == 'TIE':
+            print('菜鸡互啄，打了个平手')
+
+def next_turn(turn):
+    if turn == X:
+        return O
+    else:
+        return X
+
+main()
